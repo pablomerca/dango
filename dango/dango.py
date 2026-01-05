@@ -99,16 +99,26 @@ class Tokenizer:
         Args:
             morpheme: The morpheme for which to find the dictionary form.
         """
-        word_id = morpheme.get_word_info().dictionary_form_word_id
+        # SudachiPy 0.6.x removed the public ``lexicon`` attribute; use ``lookup`` to remain compatible.
+        word_info = morpheme.get_word_info()
+        dict_form_id = word_info.dictionary_form_word_id
 
-        if word_id == -1:
-            # If the word ID is -1, then the morpheme is already in
-            # dictionary form and we can use its own reading form.
-            return katakana_to_hiragana(morpheme.reading_form())
-        else:
-            # Otherwise we need to look up the word info for the
-            # dictionary form and get the reading form of that.
-            return katakana_to_hiragana(self._dictionary.lexicon.get_word_info(word_id).reading_form)
+        # Base reading fallback (katakana -> hiragana)
+        base_reading = katakana_to_hiragana(word_info.reading_form)
+
+        if dict_form_id == -1:
+            return base_reading
+
+        # Attempt to look up the dictionary-form surface to get its reading; fall back if lookup fails.
+        dict_surface = word_info.dictionary_form
+        try:
+            lookup_results = self._dictionary.lookup(dict_surface)
+            if lookup_results:
+                return katakana_to_hiragana(lookup_results[0].reading_form())
+        except Exception:
+            pass
+
+        return base_reading
 
     def create_word(self, morphemes: List[Morpheme]) -> Word:
         """Returns a new word created as an aggregation of morphemes.

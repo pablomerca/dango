@@ -22,10 +22,10 @@ with open("README.md", "r", encoding="utf-8") as fh:
             'Topic :: Text Processing :: Linguistic',
             'Natural Language :: Japanese'
         ],
-        python_requires='>=3.6',
+        python_requires='>=3.8',
         install_requires=[
             'pygtrie ~= 2.4',
-            'SudachiPy ~= 0.5.2',
+            'SudachiPy >= 0.6.0, < 0.7',
             'SudachiDict-core >= 20210608',
         ],
         extras_require={
